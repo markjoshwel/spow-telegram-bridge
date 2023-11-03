@@ -1,0 +1,6 @@
+{
+  "packages": [
+    "python@latest",
+    "poetry@latest"
+  ]
+}
