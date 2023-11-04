@@ -35,10 +35,16 @@ from datetime import datetime
 from os import environ
 from pathlib import Path
 from sys import argv, stderr, stdin
+from traceback import print_tb
 from typing import Generic, NamedTuple, TypeVar
 
 from telethon import TelegramClient  # type: ignore
 from telethon.tl import functions  # type: ignore
+
+# exit codes:
+# 1 - bad command usage or missing env vars
+# 2 - bad target
+# 3 - could not send message
 
 # rundown:
 # 1. if argv[-1] is 'login', then run login() and exit
@@ -56,6 +62,30 @@ session = "s+ow-telegram-bridge"
 api_id = environ.get("SPOW_TELEGRAM_API_ID", None)
 api_hash = environ.get("SPOW_TELEGRAM_API_HASH", None)
 message = Path.home().joinpath(".cache/s+ow/message")
+
+
+def handle_error(
+    exc: Exception | None = None,
+    message: str = "error",
+    recoverable: bool = False,
+    exit_code: int = -1,
+) -> None:
+    try:
+        exc_details: str = ""
+        if isinstance(exc, Exception):
+            exc_details = f": {exc} ({exc.__class__.__name__})"
+            print_tb(exc.__traceback__, file=stderr)
+
+        print(
+            f"s+ow-telegram-bridge: {message}{exc_details}",
+            file=stderr,
+        )
+
+    except Exception as exc:
+        pass
+
+    if not recoverable:
+        exit(exit_code)
 
 
 def validate_vars() -> None:
@@ -98,9 +128,8 @@ async def run() -> None:
                     targets.append(int(_target))
 
                 except Exception as exc:
-                    print(
-                        f"s+ow-telegram-bridge: error: {exc} ({exc.__class__.__name__})",
-                        file=stderr,
+                    handle_error(
+                        exc, f"error: could not cast '{_target}' as int", True, 2
                     )
                     continue
 
@@ -123,7 +152,6 @@ async def run() -> None:
                             message.read_text(),
                             silent=silent,
                         )
-
                         target_persist.write_text(
                             str(target_sent_message.id), encoding="utf-8"
                         )
@@ -137,10 +165,7 @@ async def run() -> None:
                         )
 
             except Exception as exc:
-                print(
-                    f"s+ow-telegram-bridge: error: {exc} ({exc.__class__.__name__})",
-                    file=stderr,
-                )
+                handle_error(exc, f"error: could send message", True, 3)
                 continue
 
             print("s+ow-telegram-bridge: success: message sent to", target)
