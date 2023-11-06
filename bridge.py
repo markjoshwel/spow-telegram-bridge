@@ -32,7 +32,7 @@ For more information, please refer to <http://unlicense.org/>
 
 import asyncio
 from datetime import datetime
-from os import environ
+from os import environ, chdir
 from pathlib import Path
 from sys import argv, stderr, stdin
 from traceback import print_tb
@@ -54,6 +54,9 @@ from telethon.tl import functions  # type: ignore
 #    send ~/.cache/s+ow/message
 
 
+dir_data: Path = Path.home().joinpath(".local/share/s+ow-telegram-bridge")
+dir_data.mkdir(parents=True, exist_ok=True)
+chdir(dir_data)
 dir_cache: Path = Path.home().joinpath(".cache/s+ow-telegram-bridge")
 dir_cache.mkdir(parents=True, exist_ok=True)
 
