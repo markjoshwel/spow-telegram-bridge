@@ -22,17 +22,21 @@ to use the telegram bridge:
    pkg install git
    ```
 
-3. install spow-telegram-bridge with pip or pipx:
+3. install spow-telegram-bridge:
 
    ```text
-   pip install git+https://github.com/markjoshwel/spow-telegram-bridge
+   pipx install git+https://github.com/markjoshwel/spow-telegram-bridge
    ```
 
 4. add the following to your `$HOME/.s+ow-bridges` file:
 
    ```text
-   s+ow-telegram-bridge
+   SPOW_TELEGRAM_API_HASH="" SPOW_TELEGRAM_API_ID="" s+ow-telegram-bridge
    ```
+
+   fill in SPOW_TELEGRAM_API_HASH and SPOW_TELEGRAM_API_ID accordingly.
+   see the [Telethon docs](https://docs.telethon.dev/en/stable/basic/signing-in.html) for
+   more information.
 
 usage:
 
@@ -47,8 +51,8 @@ optional arguments:
 
 - `--silent`  
   send message silently
-- `--daily-message`  
-  send as a daily message from noon that edits itself until next noon
+- `--delete-last`  
+  deletes last location message to prevent clutter
 
 ## licence
 

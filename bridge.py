@@ -105,13 +105,13 @@ def validate_vars() -> None:
 async def run() -> None:
     validate_vars()
     silent: bool = "--silent" in argv
-    daily_message: bool = "--daily-message" in argv
+    delete_last: bool = "--delete-last" in argv
 
     if silent:
         print("s+ow-telegram-bridge: info: --silent passed", file=stderr)
 
-    if daily_message:
-        print("s+ow-telegram-bridge: info: --daily-message passed", file=stderr)
+    if delete_last:
+        print("s+ow-telegram-bridge: info: --delete-last passed", file=stderr)
 
     targets: list[int] = []
     for line in stdin:
@@ -129,14 +129,17 @@ async def run() -> None:
 
                 except Exception as exc:
                     handle_error(
-                        exc, f"error: could not cast '{_target}' as int", True, 2
+                        exc=exc,
+                        message=f"error: could not cast '{_target}' as int",
+                        recoverable=True,
+                        exit_code=2,
                     )
                     continue
 
     async with TelegramClient(session, api_id, api_hash) as client:
         for target in targets:
             try:
-                if daily_message is False:
+                if delete_last is False:
                     await client.send_message(
                         int(target),
                         message.read_text(encoding="utf-8"),
@@ -144,28 +147,42 @@ async def run() -> None:
                     )
 
                 else:
-                    datetime_now: datetime = datetime.now()
                     target_persist: Path = dir_cache.joinpath(str(target))
-                    if (datetime_now.hour == 12) or (not target_persist.exists()):
-                        target_sent_message = await client.send_message(
-                            int(target),
-                            message.read_text(),
-                            silent=silent,
-                        )
-                        target_persist.write_text(
-                            str(target_sent_message.id), encoding="utf-8"
-                        )
 
-                    else:
-                        await client.edit_message(
-                            target,
-                            int(target_persist.read_text(encoding="utf-8")),
-                            message.read_text(encoding="utf-8")
-                            + f"as at {datetime_now.strftime('%Y-%m-%d %H:%M:%S')}",
+                    try:
+                        # delete old message if persist file exists
+                        if target_persist.exists() and target_persist.is_file():
+                            await client.delete_messages(
+                                entity=target,
+                                message_ids=[int(target_persist.read_text(encoding="utf-8"))],
+                            )
+
+                    except Exception as exc:
+                        handle_error(
+                            exc=exc,
+                            message=f"error: could not delete old message",
+                            recoverable=True,
+                            exit_code=3,
                         )
+                        continue
+
+                    # send new message
+                    target_sent_message = await client.send_message(
+                        target,
+                        message.read_text(),
+                        silent=silent,
+                    )
+
+                    # persist new message id
+                    target_persist.write_text(str(target_sent_message.id), encoding="utf-8")
 
             except Exception as exc:
-                handle_error(exc, f"error: could send message", True, 3)
+                handle_error(
+                    exc=exc,
+                    message=f"error: could not send message",
+                    recoverable=True,
+                    exit_code=3,
+                )
                 continue
 
             print("s+ow-telegram-bridge: success: message sent to", target)
