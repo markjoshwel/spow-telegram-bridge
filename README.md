@@ -1,6 +1,6 @@
 # surplus on wheels: telegram bridge
 
-telegram bridge for
+Telegram bridge for
 [surplus on wheels (s+ow)](https://github.com/markjoshwel/surplus#on-termux-surplus-on-wheels).
 
 s+ow bridges are defined in a file named `$HOME/.s+ow-bridges`. each command in the file is
@@ -12,7 +12,7 @@ this bridge recognises targets prefixed with `tg:`.
 tg:<chat id>,...
 ```
 
-to use the telegram bridge:
+to use the Telegram bridge:
 
 1. install [surplus](https://github.com/markjoshwel/surplus), mdtest and surplus on wheels
 
@@ -56,6 +56,6 @@ optional arguments:
 
 ## licence
 
-the s+ow telegram bridge is free and unencumbered software released into the public
+the s+ow Telegram bridge is free and unencumbered software released into the public
 domain. for more information, please refer to the [UNLICENCE](/UNLICENCE),
 <https://unlicense.org>, or the python module docstring.
