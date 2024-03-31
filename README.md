@@ -14,7 +14,7 @@ tg:<chat id>,...
 
 to use the Telegram bridge:
 
-1. install [surplus](https://github.com/markjoshwel/surplus), mdtest and surplus on wheels
+1. install [surplus](https://github.com/markjoshwel/surplus), and [surplus on wheels](https://github.com/markjoshwel/surplus-on-wheels)
 
 2. install git if not installed:
 
