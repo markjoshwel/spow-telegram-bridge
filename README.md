@@ -1,5 +1,8 @@
 # surplus on wheels: telegram bridge
 
+| This project has been merged into the main project, [surplus](https://github.com/markjoshwel/surplus). |
+| - |
+
 Telegram bridge for
 [surplus on wheels (s+ow)](https://github.com/markjoshwel/surplus#on-termux-surplus-on-wheels).
 
